@@ -1,0 +1,95 @@
+##################################
+# OS / System files
+##################################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+##################################
+# Logs
+##################################
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+##################################
+# Environment / Secrets (GLOBAL)
+##################################
+.env
+.env.*
+!.env.example
+
+##################################
+# IDEs
+##################################
+# IntelliJ / JetBrains
+.idea/
+*.iml
+out/
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.springBeans
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+##################################
+# BACKEND - Spring Boot
+##################################
+/backend/target/
+/backend/build/
+
+# Maven
+/backend/.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+/backend/.gradle/
+!/backend/gradle/wrapper/gradle-wrapper.jar
+
+# Spring config secrets
+/backend/src/main/resources/application-*.yml
+/backend/src/main/resources/application-*.properties
+
+##################################
+# FRONTEND - Angular
+##################################
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/
+/frontend/coverage/
+/frontend/.cache/
+/frontend/.tmp/
+
+# TypeScript build cache
+/frontend/*.tsbuildinfo
+
+# Package manager locks (OPTIONAL)
+# Comment if you want to version them
+/frontend/package-lock.json
+/frontend/yarn.lock
+/frontend/pnpm-lock.yaml
+
+##################################
+# Tests / Reports
+##################################
+/backend/surefire-reports/
+/backend/failsafe-reports/
+
+##################################
+# Docker
+##################################
+docker-data/
+*.pid
+
+##################################
+# Temporary / Backup files
+##################################
+*.tmp
+*.swp
+*~
