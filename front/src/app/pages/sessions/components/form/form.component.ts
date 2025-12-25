@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { Session } from '../../../../core/models/session.interface';
 import { SessionApiService } from '../../../../core/service/session-api.service';
 import { MaterialModule } from "../../../../shared/material.module";
 import { CommonModule } from "@angular/common";
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-form',
@@ -15,7 +16,9 @@ import { CommonModule } from "@angular/common";
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
-export class FormComponent implements OnInit {
+//Addition of OnDestroy to implement ngOnDestroy
+export class FormComponent implements OnInit , OnDestroy {
+
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private matSnackBar = inject(MatSnackBar);
@@ -28,8 +31,10 @@ export class FormComponent implements OnInit {
   public sessionForm: FormGroup | undefined;
   public teachers$ = this.teacherService.all();
   private id: string | undefined;
+  private readonly destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
+  
+   public ngOnInit(): void {
     if (!this.sessionService.sessionInformation!.admin) {
       this.router.navigate(['/sessions']);
     }
@@ -39,23 +44,27 @@ export class FormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id')!;
       this.sessionApiService
         .detail(this.id)
+        .pipe(takeUntil(this.destroy$))
         .subscribe((session: Session) => this.initForm(session));
     } else {
       this.initForm();
     }
   }
-
+ //Addition of takeUntil to avoid memory leaks
   public submit(): void {
     const session = this.sessionForm?.value as Session;
 
     if (!this.onUpdate) {
       this.sessionApiService
         .create(session)
+        .pipe(takeUntil(this.destroy$))
         .subscribe((_: Session) => this.exitPage('Session created !'));
     } else {
+      //Removed unused parameter to avoid implicit 'any'
       this.sessionApiService
         .update(this.id!, session)
-        .subscribe((_: Session) => this.exitPage('Session updated !'));
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.exitPage('Session updated !'));
     }
   }
 
@@ -86,5 +95,9 @@ export class FormComponent implements OnInit {
   private exitPage(message: string): void {
     this.matSnackBar.open(message, 'Close', { duration: 3000 });
     this.router.navigate(['sessions']);
+  }
+    ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

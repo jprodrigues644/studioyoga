@@ -20,7 +20,7 @@ export class ListComponent {
 
   public sessions$: Observable<Session[]> = this.sessionApiService.all();
 
-  get user(): SessionInformation | undefined {
+ public get user(): SessionInformation | undefined {
     return this.sessionService.sessionInformation;
   }
 }
