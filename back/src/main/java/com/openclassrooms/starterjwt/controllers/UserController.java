@@ -1,5 +1,6 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.dto.UserDto;
 import com.openclassrooms.starterjwt.mapper.UserMapper;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.services.UserService;
@@ -29,39 +30,24 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") String id) {
-        try {
-            User user = this.userService.findById(Long.valueOf(id));
-
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            return ResponseEntity.ok().body(this.userMapper.toDto(user));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<UserDto> findById(@PathVariable("id") String id) {
+        User user = userService.findById(Long.valueOf(id));
+        return ResponseEntity.ok().body(userMapper.toDto(user));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> save(@PathVariable("id") String id) {
-        try {
-            User user = this.userService.findById(Long.valueOf(id));
+    public ResponseEntity<?> delete(@PathVariable("id") String id) {
+        User user = userService.findById(Long.parseLong(id));
 
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            if (!Objects.equals(userDetails.getUsername(), user.getEmail())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            this.userService.delete(Long.parseLong(id));
-            return ResponseEntity.ok().build();
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
+        if (!Objects.equals(userDetails.getUsername(), user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        userService.delete(Long.parseLong(id));
+        return ResponseEntity.ok().build();
     }
 }

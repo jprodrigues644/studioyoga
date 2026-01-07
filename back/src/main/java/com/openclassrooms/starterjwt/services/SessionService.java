@@ -26,8 +26,15 @@ public class SessionService {
         return this.sessionRepository.save(session);
     }
 
+    /**
+     * Delete the session by  ID
+     * @throws NotFoundException if the session doesnt exist
+     */
     public void delete(Long id) {
-        this.sessionRepository.deleteById(id);
+        if (!sessionRepository.existsById(id)) {
+            throw new NotFoundException();
+        }
+        sessionRepository.deleteById(id);
     }
 
     public List<Session> findAll() {
@@ -35,44 +42,53 @@ public class SessionService {
     }
 
     public Session getById(Long id) {
-        return this.sessionRepository.findById(id).orElse(null);
+        return sessionRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
     }
 
     public Session update(Long id, Session session) {
+        if (!sessionRepository.existsById(id)) {
+            throw new NotFoundException();
+        }
         session.setId(id);
-        return this.sessionRepository.save(session);
+        return sessionRepository.save(session);
     }
 
     public void participate(Long id, Long userId) {
-        Session session = this.sessionRepository.findById(id).orElse(null);
-        User user = this.userRepository.findById(userId).orElse(null);
-        if (session == null || user == null) {
-            throw new NotFoundException();
-        }
+        Session session = sessionRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
 
-        boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(NotFoundException::new);
+
+        boolean alreadyParticipate = session.getUsers().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+
         if (alreadyParticipate) {
             throw new BadRequestException();
         }
 
         session.getUsers().add(user);
-
-        this.sessionRepository.save(session);
+        sessionRepository.save(session);
     }
 
     public void noLongerParticipate(Long id, Long userId) {
-        Session session = this.sessionRepository.findById(id).orElse(null);
-        if (session == null) {
-            throw new NotFoundException();
-        }
+        Session session = sessionRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
 
-        boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
+        boolean alreadyParticipate = session.getUsers().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+
         if (!alreadyParticipate) {
             throw new BadRequestException();
         }
 
-        session.setUsers(session.getUsers().stream().filter(user -> !user.getId().equals(userId)).collect(Collectors.toList()));
+        session.setUsers(
+                session.getUsers().stream()
+                        .filter(user -> !user.getId().equals(userId))
+                        .collect(Collectors.toList())
+        );
 
-        this.sessionRepository.save(session);
+        sessionRepository.save(session);
     }
 }
