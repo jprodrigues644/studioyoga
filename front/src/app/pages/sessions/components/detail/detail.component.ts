@@ -39,9 +39,10 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.isAdmin = this.sessionService.sessionInformation!.admin;
     this.userId = this.sessionService.sessionInformation!.id.toString();
   }
- public ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
-  }
+public ngOnDestroy(): void {
+  this.destroy$.next();
+  this.destroy$.complete();
+}
 
   ngOnInit(): void {
     this.fetchSession();

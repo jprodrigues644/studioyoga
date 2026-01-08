@@ -3,11 +3,13 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
-      "jest"
+      "jest",
+      "node"
     ],
     "module": "commonjs",
     "emitDecoratorMetadata": true,
-    "allowJs": true
+    "allowJs": true,
+    "esModuleInterop": true
   },
   "files": [
     "src/polyfills.ts"
@@ -15,5 +17,12 @@
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "cypress",
+    "**/*.cy.ts",
+    "**/*.e2e-spec.ts",
+    "src/**/*.cy.ts"
   ]
 }
