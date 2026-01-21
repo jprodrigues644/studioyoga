@@ -11,7 +11,7 @@ import { of } from 'rxjs';
 import { SessionService } from '../../../../core/service/session.service';
 import { SessionApiService } from '../../../../core/service/session-api.service';
 import { TeacherService } from '../../../../core/service/teacher.service';
-
+import { expect } from '@jest/globals';
 /* =======================
    MOCK DATA
 ======================= */
@@ -108,6 +108,11 @@ describe('DetailComponent', () => {
   it('should detect admin user', () => {
     expect(component.isAdmin).toBe(true);
   });
+
+  
+  /* =======================
+     UNIT TESTS FOR METHODS
+  ======================= */
 
   /* =======================
   Integration Tests

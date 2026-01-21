@@ -1,22 +1,17 @@
-import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar'; 
-import { NoopAnimationsModule } from '@angular/platform-browser/animations'; 
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { expect } from '@jest/globals';
-import { SessionService } from 'src/app/core/service/session.service';
-import { SessionApiService } from '../../../../core/service/session-api.service';
-import { TeacherService } from '../../../../core/service/teacher.service';
+import { CommonModule } from '@angular/common';
 import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
+import { expect } from '@jest/globals';
 
 import { FormComponent } from './form.component';
+import { SessionService } from '../../../../core/service/session.service';
+import { SessionApiService } from '../../../../core/service/session-api.service';
+import { TeacherService } from '../../../../core/service/teacher.service';
 
 /* ---------- MOCK DATA ---------- */
 const normalUser = {
@@ -40,7 +35,7 @@ const mockTeachers = [
   { id: 2, firstName: 'Teacher', lastName: 'Thom' }
 ];
 
-const mockSessions = {
+const mockSession = {
   id: 1,
   name: 'Yoga Basics',
   description: 'Basic yoga session',
@@ -55,10 +50,9 @@ const sessionServiceMock = {
 };
 
 const sessionApiServiceMock = {
-  all: jest.fn().mockReturnValue(of(mockSessions)),
-  detail: jest.fn().mockReturnValue(of(mockSessions)),
-  create: jest.fn().mockReturnValue(of(mockSessions)),
-  update: jest.fn().mockReturnValue(of(mockSessions))
+  detail: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn()
 };
 
 const teacherServiceMock = {
@@ -69,131 +63,119 @@ const matSnackBarMock = {
   open: jest.fn()
 };
 
+const activatedRouteMock = {
+  snapshot: {
+    paramMap: {
+      get: jest.fn()
+    }
+  }
+};
+
+const routerMock = {
+  navigate: jest.fn(),
+  url: '/create'
+};
+
 describe('FormComponent', () => {
   let component: FormComponent;
   let fixture: ComponentFixture<FormComponent>;
-  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        FormComponent,
-        HttpClientModule,
-        MatCardModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
+        CommonModule,
         ReactiveFormsModule,
-        MatSelectModule,
-        NoopAnimationsModule // Correction : Utilisation de Noop pour éviter les crashs CSS
+        NoopAnimationsModule,
+        HttpClientTestingModule
       ],
       providers: [
-        provideRouter([
-          { path: 'sessions', component: FormComponent },
-          { path: 'create', component: FormComponent },
-          { path: 'update/:id', component: FormComponent }
-        ]),
+        FormBuilder,
         { provide: SessionService, useValue: sessionServiceMock },
         { provide: SessionApiService, useValue: sessionApiServiceMock },
         { provide: TeacherService, useValue: teacherServiceMock },
-        { provide: MatSnackBar, useValue: matSnackBarMock } // Le mock remplace le vrai service
+        { provide: MatSnackBar, useValue: matSnackBarMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: Router, useValue: routerMock }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
- 
+
   /* =========================
-      UNIT TESTS
-      ========================= */
+     UNIT TESTS
+     ========================= */
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should initialize form in create mode', () => {
-    // ARRANGE
-    jest.spyOn(router, 'url', 'get').mockReturnValue('/create');
+    routerMock.url = '/create';
 
-    // ACT
     fixture.detectChanges();
 
-    // ASSERT
     expect(component.onUpdate).toBe(false);
     expect(component.sessionForm).toBeDefined();
     expect(component.sessionForm?.get('name')?.value).toBe('');
   });
 
-  it('should initialize form in update mode', () => {
-    // ARRANGE
-    const route = TestBed.inject(ActivatedRoute);
-    // Correction : Mock du paramMap pour éviter le "null"
-    jest.spyOn(route.snapshot.paramMap, 'get').mockReturnValue('1');
-    jest.spyOn(router, 'url', 'get').mockReturnValue('/update/1');
-    
-    sessionApiServiceMock.detail.mockReturnValue(of(mockSessions));
+  it('should initialize form in update mode', fakeAsync(() => {
+    routerMock.url = '/update/1';
+    activatedRouteMock.snapshot.paramMap.get.mockReturnValue('1');
+    sessionApiServiceMock.detail.mockReturnValue(of(mockSession));
 
-    // ACT
     fixture.detectChanges();
+    tick();
 
-    // ASSERT
     expect(component.onUpdate).toBe(true);
     expect(sessionApiServiceMock.detail).toHaveBeenCalledWith('1');
     expect(component.sessionForm?.get('name')?.value).toBe('Yoga Basics');
-  });
+  }));
 
   it('should redirect non-admin users to sessions list', () => {
-    // ARRANGE
     sessionServiceMock.sessionInformation = normalUser;
-    const navigateSpy = jest.spyOn(router, 'navigate');
 
-    // ACT
     fixture.detectChanges();
 
-    // ASSERT
-    expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
   });
 
   it('should load teachers on init', () => {
-    // ARRANGE
     sessionServiceMock.sessionInformation = adminUser;
-    jest.spyOn(router, 'url', 'get').mockReturnValue('/create');
+    routerMock.url = '/create';
 
-    // ACT
     fixture.detectChanges();
 
-    // ASSERT
     expect(teacherServiceMock.all).toHaveBeenCalled();
   });
 
   it('should have required validators on all fields', () => {
-    // ARRANGE
-    jest.spyOn(router, 'url', 'get').mockReturnValue('/create');
+    routerMock.url = '/create';
 
-    // ACT
     fixture.detectChanges();
 
-    // ASSERT
     expect(component.sessionForm?.get('name')?.hasError('required')).toBe(true);
     expect(component.sessionForm?.get('date')?.hasError('required')).toBe(true);
     expect(component.sessionForm?.get('teacher_id')?.hasError('required')).toBe(true);
     expect(component.sessionForm?.get('description')?.hasError('required')).toBe(true);
   });
-  
-  /* it('should create session when form is valid in create mode', () => {
-    // ARRANGE
-    sessionServiceMock.sessionInformation = adminUser; 
-    jest.spyOn(router, 'url', 'get').mockReturnValue('/create');
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    
-    sessionApiServiceMock.create.mockReturnValue(of(mockSessions));
-    fixture.detectChanges(); 
+
+  /* =========================
+     INTEGRATION TESTS
+     ========================= */
+
+  it('should create session when form is valid in create mode', fakeAsync(() => {
+    sessionServiceMock.sessionInformation = adminUser;
+    routerMock.url = '/create';
+    sessionApiServiceMock.create.mockReturnValue(of(mockSession));
+
+    fixture.detectChanges();
 
     component.sessionForm?.patchValue({
       name: 'New Session',
@@ -202,12 +184,68 @@ describe('FormComponent', () => {
       description: 'Test description'
     });
 
-    // ACT
     component.submit();
+    tick();
 
-    // ASSERT
-    expect(sessionApiServiceMock.create).toHaveBeenCalled();
-    expect(matSnackBarMock.open).toHaveBeenCalledWith('Session created !', 'Close', { duration: 3000 });
-    expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
-  }); */
+    expect(sessionApiServiceMock.create).toHaveBeenCalledWith({
+      name: 'New Session',
+      date: '2026-02-01',
+      teacher_id: 1,
+      description: 'Test description'
+    });
+
+    expect(matSnackBarMock.open).toHaveBeenCalledWith(
+      'Session created !',
+      'Close',
+      { duration: 3000 }
+    );
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['sessions']);
+  }));
+
+  it('should update session when form is valid in update mode', fakeAsync(() => {
+    sessionServiceMock.sessionInformation = adminUser;
+    routerMock.url = '/update/1';
+    activatedRouteMock.snapshot.paramMap.get.mockReturnValue('1');
+    sessionApiServiceMock.detail.mockReturnValue(of(mockSession));
+    sessionApiServiceMock.update.mockReturnValue(of(mockSession));
+
+    fixture.detectChanges();
+    tick();
+
+    component.sessionForm?.patchValue({
+      name: 'Updated Session',
+      date: '2026-02-01',
+      teacher_id: 1,
+      description: 'Updated description'
+    });
+
+    component.submit();
+    tick();
+
+    expect(sessionApiServiceMock.update).toHaveBeenCalledWith('1', {
+      name: 'Updated Session',
+      date: '2026-02-01',
+      teacher_id: 1,
+      description: 'Updated description'
+    });
+
+    expect(matSnackBarMock.open).toHaveBeenCalledWith(
+      'Session updated !',
+      'Close',
+      { duration: 3000 }
+    );
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['sessions']);
+  }));
+
+  it('should call ngOnDestroy and complete destroy$', () => {
+    const nextSpy = jest.spyOn(component['destroy$'], 'next');
+    const completeSpy = jest.spyOn(component['destroy$'], 'complete');
+
+    component.ngOnDestroy();
+
+    expect(nextSpy).toHaveBeenCalled();
+    expect(completeSpy).toHaveBeenCalled();
+  });
 });
