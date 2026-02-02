@@ -1,0 +1,68 @@
+{
+  "sessions": [
+    {
+      "id": 1,
+      "name": "Morning Yoga",
+      "description": "Start your day with energy and positivity through a dynamic yoga session.",
+      "date": "2026-02-15T10:00:00.000Z",
+      "teacher_id": 1,
+      "users": [1, 2, 3],
+      "createdAt": "2026-01-01T08:00:00.000Z",
+      "updatedAt": "2026-01-15T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Evening Relaxation",
+      "description": "Unwind after a long day with calming stretches and breathing exercises.",
+      "date": "2026-02-20T18:00:00.000Z",
+      "teacher_id": 2,
+      "users": [2, 4],
+      "createdAt": "2026-01-05T08:00:00.000Z",
+      "updatedAt": "2026-01-20T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Power Yoga",
+      "description": "Build strength and flexibility with this intensive yoga workout.",
+      "date": "2026-02-25T12:00:00.000Z",
+      "teacher_id": 1,
+      "users": [1],
+      "createdAt": "2026-01-10T08:00:00.000Z",
+      "updatedAt": "2026-01-25T08:00:00.000Z"
+    }
+  ],
+  "teachers": [
+    {
+      "id": 1,
+      "lastName": "DELAHAYE",
+      "firstName": "Margot",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "lastName": "THIERCELIN",
+      "firstName": "Hélène",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "adminUser": {
+    "token": "jwt-token-admin",
+    "type": "Bearer",
+    "id": 1,
+    "username": "admin@yoga.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "admin": true
+  },
+  "regularUser": {
+    "token": "jwt-token-user",
+    "type": "Bearer",
+    "id": 2,
+    "username": "user@yoga.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "admin": false
+  }
+}
