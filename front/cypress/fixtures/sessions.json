@@ -1,4 +1,6 @@
 {
+
+
   "sessions": [
     {
       "id": 1,
@@ -31,18 +33,31 @@
       "updatedAt": "2026-01-25T08:00:00.000Z"
     }
   ],
+
+  "newSession": {
+    "name": "Beginner Yoga",
+    "description": "Perfect for those new to yoga. Learn the basics in a supportive environment.",
+    "date": "2026-03-01",
+    "teacher_id": 1
+  },
+  "updatedSession": {
+    "name": "Updated Morning Yoga",
+    "description": "Updated description for morning yoga class",
+    "date": "2026-02-16",
+    "teacher_id": 2
+  },
   "teachers": [
     {
       "id": 1,
-      "lastName": "DELAHAYE",
+    "lastName": "DUPONT",
       "firstName": "Margot",
       "createdAt": "2025-01-01T00:00:00.000Z",
       "updatedAt": "2025-01-01T00:00:00.000Z"
     },
     {
       "id": 2,
-      "lastName": "THIERCELIN",
-      "firstName": "Hélène",
+      "lastName": "SILVA",
+      "firstName": "Silvia",
       "createdAt": "2025-01-01T00:00:00.000Z",
       "updatedAt": "2025-01-01T00:00:00.000Z"
     }

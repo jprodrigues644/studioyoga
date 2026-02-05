@@ -15,7 +15,12 @@
     "admin": true,
     "createdAt": "2024-01-15T10:00:00",
     "updatedAt": "2024-01-20T15:30:00"
+  } ,
+  "invalidUser": {
+    "email": "wrong@email.com",
+    "password": "wrongpassword"
   }
 
 
 }
+
