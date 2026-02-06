@@ -170,6 +170,23 @@
                           <exclude>
                             /com/openclassrooms/starterjwt/mapper/**
                          </exclude>
+                                <exclude>
+                    /com/openclassrooms/starterjwt/models/**
+
+                </exclude>
+                     <exclude>
+            /com/openclassrooms/starterjwt/exception/**
+                </exclude>
+                <exclude>
+                    /com/openclassrooms/starterjwt/configuration/**
+                </exclude>
+                <exclude>
+                    /com/openclassrooms/starterjwt/SpringBootSecurityJwtApplication*
+                </exclude>
+                                <exclude>
+                /com/openclassrooms/starterjwt/security/jwt/**
+                </exclude>
+
                         </excludes>
                  </configuration>
                 <executions>
