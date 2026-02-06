@@ -8,19 +8,18 @@ describe('Login Page', () => {
   // ========================================
 
   it('should display login form with all elements', () => {
-    // Vérifie le titre
+    
     cy.get('mat-card-title').should('contain', 'Login');
     
-    // Vérifie les champs du formulaire
+    //Verifies the presence of email and password fields
     cy.get('input[formControlName="email"]').should('be.visible');
     cy.get('input[formControlName="password"]').should('be.visible');
     
-    // Vérifie le bouton submit
+    
     cy.get('button[type="submit"]')
       .should('be.visible')
       .and('contain', 'Submit');
     
-    // Vérifie que le message d'erreur n'est pas affiché initialement
     cy.get('.error').should('not.exist');
   });
 
@@ -30,7 +29,7 @@ describe('Login Page', () => {
   });
 
   // ========================================
-  // 2. TESTS DE VALIDATION DU FORMULAIRE
+  // 2. FORM VALIDATION TESTS
   // ========================================
 
   it('should have submit button disabled when form is empty', () => {
@@ -66,20 +65,20 @@ describe('Login Page', () => {
   });
 
   // ========================================
-  // 3. TESTS DE VISIBILITÉ DU MOT DE PASSE
+  // 3.Password Visibility Toggle Tests
   // ========================================
 
   it('should toggle password visibility when clicking eye icon', () => {
-    // Par défaut, le mot de passe est masqué
+  
     cy.get('input[formControlName="password"]')
       .should('have.attr', 'type', 'password');
     
-    // Clique sur le bouton pour afficher
+    
     cy.get('button[matSuffix]').click();
     cy.get('input[formControlName="password"]')
       .should('have.attr', 'type', 'text');
     
-    // Clique à nouveau pour masquer
+    
     cy.get('button[matSuffix]').click();
     cy.get('input[formControlName="password"]')
       .should('have.attr', 'type', 'password');
@@ -95,12 +94,12 @@ describe('Login Page', () => {
   });
 
   // ========================================
-  // 4. TESTS DE CONNEXION RÉUSSIE
+  // 4. Complete Login Flow Tests
   // ========================================
 
   it('should login successfully with valid credentials (using fixtures)', () => {
     cy.fixture('users').then((users) => {
-      // Mock de la réponse API
+      
       cy.intercept('POST', '/api/auth/login', {
         statusCode: 200,
         body: {
@@ -120,15 +119,15 @@ describe('Login Page', () => {
         body: []
       }).as('getSessions');
 
-      // Saisie des identifiants
+    
       cy.get('input[formControlName="email"]').type(users.validUser.email);
       cy.get('input[formControlName="password"]').type(users.validUser.password);
       cy.get('button[type="submit"]').click();
 
-      // Vérifie que la requête a été faite
+    
       cy.wait('@loginRequest');
 
-      // Vérifie la redirection vers /sessions
+      
       cy.url().should('include', '/sessions');
     });
   });
@@ -137,7 +136,7 @@ describe('Login Page', () => {
     cy.fixture('users').then((users) => {
       const admin = users.adminUser;
       
-      // Mock de la réponse API avec un admin
+      
       cy.intercept('POST', '/api/auth/login', {
         statusCode: 200,
         body: {
@@ -153,7 +152,7 @@ describe('Login Page', () => {
 
       cy.intercept('GET', '/api/session', []).as('getSessions');
 
-      // Saisie des identifiants
+    
       cy.get('input[formControlName="email"]').type(admin.email);
       cy.get('input[formControlName="password"]').type('test!1234');
       cy.get('button[type="submit"]').click();
@@ -166,7 +165,7 @@ describe('Login Page', () => {
 
 
   // ========================================
-  // 5. TESTS DE CONNEXION ÉCHOUÉE
+  // 5. Error Handling Tests
   // ========================================
 
   it('should display error message with invalid credentials', () => {
@@ -182,7 +181,7 @@ describe('Login Page', () => {
 
     cy.wait('@loginError');
 
-    // Vérifie l'affichage du message d'erreur
+    
     cy.get('.error')
       .should('be.visible')
       .and('contain', 'An error occurred');
@@ -200,7 +199,7 @@ describe('Login Page', () => {
 
     cy.wait('@loginError');
 
-    // Doit rester sur /login
+   //Should remain on login page
     cy.url().should('include', '/login');
   });
 
@@ -238,7 +237,7 @@ describe('Login Page', () => {
   });
 
   // ========================================
-  // 6. TESTS DE SAISIE UTILISATEUR
+  // 6. User Interaction Tests
   // ========================================
 
   it('should clear error message when user types again', () => {
@@ -258,7 +257,7 @@ describe('Login Page', () => {
    
     cy.get('input[formControlName="email"]').clear().type('new@email.com');
     
-    // Si vous avez implémenté la réinitialisation de l'erreur:
+    // The error message should disappear when the user starts typing again
     // cy.get('.error').should('not.exist');
   });
 
@@ -273,17 +272,17 @@ describe('Login Page', () => {
 
   it('should reject email with whitespace', () => {
   cy.fixture('users').then((users) => {
-    // Saisie avec des espaces avant et après
+    //Spaces before and after email
     cy.get('input[formControlName="email"]').type(`  ${users.validUser.email}  `);
     cy.get('input[formControlName="password"]').type(users.validUser.password);
     
-    // Le bouton devrait rester désactivé car l'email est invalide
+    
     cy.get('button[type="submit"]').should('be.disabled');
   });
 });
 
   // ========================================
-  // 7. TESTS D'ACCESSIBILITÉ
+  // 7. Accessibility Tests
   // ========================================
 
   it('should have proper labels and placeholders', () => {
@@ -304,14 +303,14 @@ describe('Login Page', () => {
     cy.get('button[matSuffix]')
       .should('have.attr', 'aria-pressed', 'true');
     
-    // Clique pour afficher
+    
     cy.get('button[matSuffix]').click();
     cy.get('button[matSuffix]')
       .should('have.attr', 'aria-pressed', 'false');
   });
 
   // ========================================
-  // 8. TESTS DE VALIDATION DES DONNÉES
+  // 8. API Interaction Tests
   // ========================================
 
   it('should send correct data format to API', () => {

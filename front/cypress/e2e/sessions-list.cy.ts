@@ -3,6 +3,10 @@ describe('Sessions List spec', () => {
     cy.fixture('sessions').as('sessionsData');
   });
 
+  /**
+ * Login as admin user via UI
+ */
+Cypress.Commands.add('loginAsAdmin', () => {
   describe('As Admin', () => {
     beforeEach(function() {
       // Simuler la session admin
